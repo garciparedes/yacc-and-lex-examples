@@ -1,0 +1,3 @@
+# Lex generated files
+*.yy.c
+*.out
