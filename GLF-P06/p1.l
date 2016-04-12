@@ -14,21 +14,21 @@ static char **fName ;
 static FILE *fd;
 
 static int pSize = 2;
+static int pElems = 0;
 static struct Person *persons;
 
 
 
-extern char rotaUpp(char, char) ;
-extern char rotaLow(char, char) ;
-extern char rotaEsp(char *, char, char) ;
-extern void proof(char *) ;
+extern void processLine(char *) ;
 extern void printNotas() ;
+extern void addNota(char*, int, float) ;
+extern float notaMedia(float *) ;
 
 
 %}
 
 %%
-^[0-9]{8}[a-zA-Z];[0-3];[0-9]{1,2}(.[0-9]{1,10})?$	{ proof(yytext) ; }
+^[0-9]{8}[a-zA-Z];[0-3];[0-9]{1,2}(.[0-9]{1,10})?$	{ processLine(yytext) ; }
 .* { puts("Error");}
 %%
 
@@ -39,20 +39,20 @@ extern void printNotas() ;
 void addNota(char nif[], int conv, float nota){
     int  i = 0;
 
-    while ((strcmp(persons[i].nif, nif) != 0) && (strcmp(persons[i].nif, "\0") != 0)){
+    while ((strcmp(persons[i].nif, nif) != 0) && (i < pElems)){
         i++;
     }
-    if ((strcmp(persons[i].nif, "") == 0)){
+    if (pElems == i){
+
         if (pSize == i){
             pSize = pSize*2;
             persons = realloc(persons, pSize * sizeof(struct Person));
         }
-        strncpy(persons[i].nif,nif, strlen(nif));
-        persons[i].nota[conv] = nota;
-    } else {
-        persons[i].nota[conv] = nota;
-    }
 
+        strncpy(persons[i].nif,nif, strlen(nif));
+        pElems++;
+    }
+    persons[i].nota[conv] = nota;
 }
 
 float notaMedia(float nota[]){
@@ -66,13 +66,13 @@ float notaMedia(float nota[]){
 
 void printNotas(){
     int i;
-    for (i = 0; strcmp(persons[i].nif, "\0") != 0 ; i++){
+    for (i = 0; i < pElems ; i++){
         printf("NIF: %s\t Nota Media: %f\n",
             persons[i].nif, notaMedia(persons[i].nota) );
     }
 }
 
-void proof(char uL[]) {
+void processLine(char uL[]) {
 
     static char dni[10];
     static int conv;
@@ -81,7 +81,7 @@ void proof(char uL[]) {
     strncpy(dni, uL, 9);
     strncpy(nota, uL+12, strlen(uL)-12);
 
-    //printf(uL);
+    printf(uL);
     conv = uL[9] - '0';
 }
 
@@ -123,7 +123,7 @@ FILE *fileReg(int na, char *av[]) {
  * Si no, indica a yylex que hay que terminar
  */
 int yywrap() {
-  if (yyin = fileReg(0, (char **)0)) {
+  if ((yyin = fileReg(0, (char **)0))) {
      printf("FICHERO: [%s]\n", fName[nfc]);
      return 0;
   }
@@ -133,10 +133,11 @@ int yywrap() {
 int main (int na, char *av[]) {
 
     FILE *infd ;
-    if (infd = fileReg(na, av)) {
+    if ((infd = fileReg(na, av))) {
         yyin=infd;
         printf("FICHERO: [%s]\n", fName[nfc]);
     }
+
     persons = malloc(pSize * sizeof(struct Person));
 
     yylex() ;
@@ -149,23 +150,8 @@ int main (int na, char *av[]) {
     addNota("12432432F", 0, 5);
     addNota("12432432F", 1, 5);
     addNota("12432432F", 2, 5);
-
-    addNota("12432232F", 1, 5);
-    addNota("12452232A", 1, 5);
-    addNota("13432232B", 1, 5);
-    addNota("13432232C", 1, 5);
-    addNota("13432232D", 1, 5);
-    addNota("13432232E", 1, 5);
-    addNota("13432232F", 1, 5);
-    addNota("13432232G", 1, 5);
-    addNota("13432232H", 1, 5);
-    addNota("13432232I", 1, 5);
-    addNota("13432232J", 1, 5);
-    addNota("13432232K", 1, 5);
-    addNota("13432232L", 1, 5);
-    addNota("13432232M", 1, 5);
-    addNota("13432232N", 1, 5);
-    addNota("13432232O", 1, 5);
+    addNota("12432432A", 2, 5);
+    addNota("12432432B", 2, 5);
 
 
     printNotas();
