@@ -19,7 +19,7 @@ static struct Person *persons;
 
 
 
-extern void processLine(char *) ;
+extern char *processLine(char *) ;
 extern void printNotas() ;
 extern void addNota(char*, int, float) ;
 extern float notaMedia(float *) ;
@@ -28,12 +28,9 @@ extern float notaMedia(float *) ;
 %}
 
 %%
-^[0-9]{8}[a-zA-Z];[0-3];[0-9]{1,2}(.[0-9]{1,10})?$	{ processLine(yytext) ; }
-.* { puts("Error");}
+^[0-9]{8}[a-zA-Z];[0-3];(10|([0-9](.[0-9]{1,10})?))$	{ processLine(yytext) ; }
+.* {puts("error");}
 %%
-
-
-
 
 
 void addNota(char nif[], int conv, float nota){
@@ -72,17 +69,26 @@ void printNotas(){
     }
 }
 
-void processLine(char uL[]) {
+char* processLine(char uL[]) {
 
-    static char dni[10];
-    static int conv;
-    static char nota[12];
+    char dni[10];
+    int conv;
+    char nota[12];
+    float notaf;
+    //printf("%s\n",uL);
 
     strncpy(dni, uL, 9);
-    strncpy(nota, uL+12, strlen(uL)-12);
+    //printf("%s\n",dni);
 
-    printf(uL);
-    conv = uL[9] - '0';
+    conv = uL[10] - '0';
+    //printf("%i\n",conv);
+
+    strncpy(nota, uL+12, strlen(uL)-12);
+    notaf = atof(nota);
+    //printf("%f\n",notaf);
+
+    addNota(dni, conv, atof(nota));
+    return "";
 }
 
 /*
@@ -141,17 +147,6 @@ int main (int na, char *av[]) {
     persons = malloc(pSize * sizeof(struct Person));
 
     yylex() ;
-    addNota("12435432F", 3, 4.5);
-    addNota("12435432F", 0, 4.5);
-    addNota("12435432F", 1, 4.5);
-    addNota("12435432F", 2, 4.5);
-
-    addNota("12432432F", 3, 5);
-    addNota("12432432F", 0, 5);
-    addNota("12432432F", 1, 5);
-    addNota("12432432F", 2, 5);
-    addNota("12432432A", 2, 5);
-    addNota("12432432B", 2, 5);
 
 
     printNotas();
