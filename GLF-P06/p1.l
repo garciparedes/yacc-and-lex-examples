@@ -28,8 +28,9 @@ extern float notaMedia(float *) ;
 %}
 
 %%
+[ \t\n]   ;
 ^[0-9]{8}[a-zA-Z];[0-3];(10|([0-9](.[0-9]{1,10})?))$	{ processLine(yytext) ; }
-.* {puts("error");}
+.* {printf("Error on: %s\n", yytext);}
 %%
 
 
