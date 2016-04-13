@@ -15,7 +15,20 @@ static FILE *fd;
 %}
 
 %%
+([ \t\n]|.)* ;
 %%
+
+void addclass(char className[]){
+}
+
+
+void addMethod(char className[], char methodName[]){
+
+}
+
+void addAttr(char className[], char attrName[]){
+
+}
 
 
 
