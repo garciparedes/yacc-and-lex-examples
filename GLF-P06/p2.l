@@ -52,19 +52,6 @@ static int nested = 0;
 }
 %%
 
-void addclass(char className[]){
-}
-
-
-void addMethod(char className[], char methodName[]){
-
-}
-
-void addAttr(char className[], char attrName[]){
-
-}
-
-
 
 /*
  * Registra la lista de ficheros proporcionada en los argumentos
