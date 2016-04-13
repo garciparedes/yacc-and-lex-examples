@@ -9,20 +9,47 @@ static int nft ;
 static char **fName ;
 static FILE *fd;
 
-
+static int nested = 0;
 
 
 %}
 
+%x CLASS
+%x IN_COMMENT
+%x METHOD
+
+
 %%
-([\t\n]|.)                      ;
-((class[ ]+)[a-zA-Z]+)          {printf("\tC: %s\n", yytext);}
-([a-zA-Z]+[ ]+[a-zA-Z]+;)       {printf("\t\tA: %s\n", yytext);}
-([a-zA-Z]+[ ]+[a-zA-Z]+\(.*\))  {printf("\t\tF: %s\n", yytext);}
-(\/\*[.\n\t]*\/\*)              ;
-(\/\/)                          ;
 
+<INITIAL>{
+   ([\t\n]|.)                     ;
+   class[ ]+[a-zA-Z]+              {printf("\tC: %s\n", yytext);
+                                    BEGIN(CLASS);}
+}
 
+<CLASS>{
+    ([a-zA-Z]+[ ]+[a-zA-Z]+;)       {printf("\t\tA: %s\n", yytext);}
+    ([a-zA-Z]+[ ]+[a-zA-Z]+[ ]*\(.*\))  {printf("\t\tF: %s\n", yytext);
+                                    BEGIN(METHOD);}
+    (\/\/)                          ;
+    [\t\n]|[^\}]                     ;
+    "/*"                BEGIN(IN_COMMENT);
+    "}"                 BEGIN(INITIAL);
+}
+
+<IN_COMMENT>{
+    "*/"      BEGIN(CLASS);
+    [^*\n]+   // eat comment in chunks
+    "*"       // eat the lone star
+    \n        yylineno++;
+}
+
+<METHOD>{
+    "}"       {nested--; if (nested == 0 )BEGIN(CLASS);}
+    [^\{\}\n]+   // eat comment in chunks
+    "{"       {nested++;}
+    \n        yylineno++;
+}
 %%
 
 void addclass(char className[]){
