@@ -29,14 +29,13 @@ extern float notaMedia(float *) ;
 
 %%
 [ \t\n]   ;
-^[0-9]{8}[a-zA-Z];[0-3];(10|([0-9](.[0-9]{1,10})?))$	{ processLine(yytext) ; }
-.* {printf("Error on: %s\n", yytext);}
+^[0-9]{8}[a-zA-Z];[0-3];(10|([0-9](,[0-9]+)?))$	{ printf("%s",processLine(yytext)); }
+^.*$ {printf("Error on: %s\n", yytext);}
 %%
 
 
 void addNota(char nif[], int conv, float nota){
     int  i = 0;
-
     while ((strcmp(persons[i].nif, nif) != 0) && (i < pElems)){
         i++;
     }
@@ -70,25 +69,21 @@ void printNotas(){
     }
 }
 
-char* processLine(char uL[]) {
+char* processLine(char line[]) {
 
-    char dni[10];
+    char nif[10];
     int conv;
     char nota[12];
     float notaf;
-    //printf("%s\n",uL);
 
-    strncpy(dni, uL, 9);
-    //printf("%s\n",dni);
+    strncpy(nif, line, 9);
 
-    conv = uL[10] - '0';
-    //printf("%i\n",conv);
+    conv = line[10] - '0';
 
-    strncpy(nota, uL+12, strlen(uL)-12);
+    strncpy(nota, line+12, strlen(line)-12);
     notaf = atof(nota);
-    //printf("%f\n",notaf);
 
-    addNota(dni, conv, atof(nota));
+    addNota(nif, conv, atof(nota));
     return "";
 }
 
@@ -146,7 +141,7 @@ int main (int na, char *av[]) {
     }
 
     persons = malloc(pSize * sizeof(struct Person));
-
+    //printf("%s %f\n",persons[0].nif, persons[0].nota[0]);
     yylex() ;
 
 
