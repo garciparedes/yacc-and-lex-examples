@@ -15,7 +15,6 @@ static FILE *fd;
 %}
 
 %%
-.* {printf("%s\n", yytext);}
 %%
 
 
@@ -66,6 +65,18 @@ int yywrap() {
 }
 
 int main (int na, char *av[]) {
+    char extension[6];
+    int i;
+    for (i=1 ; i<na ; ) {
+        strncpy(extension,av[i]+strlen(av[i])-5, 5);
+
+        if (strcmp(".java", extension)!=0){
+            av[i] = av[na-1];
+            na--;
+        } else {
+            i++;
+        }
+    }
 
     FILE *infd ;
     if ((infd = fileReg(na, av))) {
