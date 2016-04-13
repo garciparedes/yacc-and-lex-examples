@@ -15,7 +15,14 @@ static FILE *fd;
 %}
 
 %%
-([ \t\n]|.)* ;
+([\t\n]|.)                      ;
+((class[ ]+)[a-zA-Z]+)          {printf("\tC: %s\n", yytext);}
+([a-zA-Z]+[ ]+[a-zA-Z]+;)       {printf("\t\tA: %s\n", yytext);}
+([a-zA-Z]+[ ]+[a-zA-Z]+\(.*\))  {printf("\t\tF: %s\n", yytext);}
+(\/\*[.\n\t]*\/\*)              ;
+(\/\/)                          ;
+
+
 %%
 
 void addclass(char className[]){
@@ -96,6 +103,5 @@ int main (int na, char *av[]) {
         yyin=infd;
         printf("FICHERO: [%s]\n", fName[nfc]);
     }
-
     yylex() ;
 }
