@@ -15,18 +15,23 @@ static int nested = 0;
 %}
 
 %x CLASS
+%x CLASS_NAME
 %x IN_COMMENT
 %x METHOD
+%x METHOD_VISIBILITY
 
 
 %%
 
 <INITIAL>{
    ([\t\n]|.)                     ;
-   (class[ ]+)[a-zA-Z]+              {printf("\tClass:\t%s\n", yytext);
+   (class[ ]+)              {BEGIN(CLASS_NAME);}
+}
+<CLASS_NAME>{
+   ([\t\n]|.)                     {BEGIN(INITIAL);}
+   [a-zA-Z]+              {printf("\tClass:\t%s\n", yytext);
                                     BEGIN(CLASS);}
 }
-
 <CLASS>{
     ([a-zA-Z<>]+[ ]+[a-zA-Z0-9_]+)/([ ]*(=.*)?;)       {printf("\t\tAttr:\t%s\n", yytext);}
 
