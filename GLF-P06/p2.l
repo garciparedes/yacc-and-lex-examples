@@ -30,7 +30,7 @@ static int nested = 0;
 <CLASS>{
     ([a-zA-Z<>]+[ ]+[a-zA-Z0-9_]+)/([ ]*(=.*)?;)       {printf("\t\tAttr:\t%s\n", yytext);}
 
-    ((public|private|protected|static|final|abstract|strictfp|synchronized|native)[ ]+)*([a-zA-Z<>]+[ ]+)?[a-zA-Z]+[ ]*\([^\)]*\)  {printf("\t\tFunc:\t%s\n", yytext);
+    ([a-zA-Z<>]+[ ]+)?[a-zA-Z]+[ ]*\([^\)]*\)  {printf("\t\tFunc:\t%s\n", yytext);
                                     BEGIN(METHOD);}
     (\/\/)                          ;
     [\t\n]|[^\}]                     ;
