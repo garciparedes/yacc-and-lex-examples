@@ -23,13 +23,14 @@ static int nested = 0;
 
 <INITIAL>{
    ([\t\n]|.)                     ;
-   class[ ]+[a-zA-Z]+              {printf("\tC:\t%s\n", yytext);
+   ((public|private|protected|static|final|abstract|strictfp|class)[ ]+)+[a-zA-Z]+              {printf("\tClass:\t%s\n", yytext);
                                     BEGIN(CLASS);}
 }
 
 <CLASS>{
-    ([a-zA-Z]+[ ]+[a-zA-Z]+;)       {printf("\t\tA:\t%s\n", yytext);}
-    ([a-zA-Z]+[ ]+[a-zA-Z]+[ ]*\(.*\))  {printf("\t\tF:\t%s\n", yytext);
+    ((public|private|protected|static|final)[ ]+)*([a-zA-Z<>]+[ ]+[a-zA-Z0-9_]+)/([ ]*(=.*)?;)       {printf("\t\tAttr:\t%s\n", yytext);}
+
+    ((public|private|protected|static|final|abstract|strictfp|synchronized|native)[ ]+)*([a-zA-Z<>]+[ ]+)?[a-zA-Z]+[ ]*\([^\)]*\)  {printf("\t\tFunc:\t%s\n", yytext);
                                     BEGIN(METHOD);}
     (\/\/)                          ;
     [\t\n]|[^\}]                     ;
