@@ -81,9 +81,12 @@ char* processLine(char line[]) {
     conv = line[10] - '0';
 
     strncpy(nota, line+12, strlen(line)-12);
+    if(strlen(nota)>2){
+        nota[1] = '.';
+    }
     notaf = atof(nota);
 
-    addNota(nif, conv, atof(nota));
+    addNota(nif, conv, notaf);
     return "";
 }
 
@@ -141,7 +144,6 @@ int main (int na, char *av[]) {
     }
 
     persons = malloc(pSize * sizeof(struct Person));
-    //printf("%s %f\n",persons[0].nif, persons[0].nota[0]);
     yylex() ;
 
 
