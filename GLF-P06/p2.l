@@ -23,13 +23,13 @@ static int nested = 0;
 
 <INITIAL>{
    ([\t\n]|.)                     ;
-   class[ ]+[a-zA-Z]+              {printf("\tC: %s\n", yytext);
+   class[ ]+[a-zA-Z]+              {printf("\tC:\t%s\n", yytext);
                                     BEGIN(CLASS);}
 }
 
 <CLASS>{
-    ([a-zA-Z]+[ ]+[a-zA-Z]+;)       {printf("\t\tA: %s\n", yytext);}
-    ([a-zA-Z]+[ ]+[a-zA-Z]+[ ]*\(.*\))  {printf("\t\tF: %s\n", yytext);
+    ([a-zA-Z]+[ ]+[a-zA-Z]+;)       {printf("\t\tA:\t%s\n", yytext);}
+    ([a-zA-Z]+[ ]+[a-zA-Z]+[ ]*\(.*\))  {printf("\t\tF:\t%s\n", yytext);
                                     BEGIN(METHOD);}
     (\/\/)                          ;
     [\t\n]|[^\}]                     ;
@@ -91,10 +91,12 @@ FILE *fileReg(int na, char *av[]) {
  * Si no, indica a yylex que hay que terminar
  */
 int yywrap() {
-  if ((yyin = fileReg(0, (char **)0))) {
-     printf("FICHERO: [%s]\n", fName[nfc]);
-     return 0;
-  }
+    printf("\n");
+
+    if ((yyin = fileReg(0, (char **)0))) {
+        //printf("FICHERO: [%s]\n", fName[nfc]);
+        return 0;
+    }
   return 1 ;
 }
 
@@ -115,7 +117,7 @@ int main (int na, char *av[]) {
     FILE *infd ;
     if ((infd = fileReg(na, av))) {
         yyin=infd;
-        printf("FICHERO: [%s]\n", fName[nfc]);
+        //printf("FICHERO: [%s]\n", fName[nfc]);
     }
     yylex() ;
 }
