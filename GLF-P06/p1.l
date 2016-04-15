@@ -17,6 +17,9 @@ static int pSize = 2;
 static int pElems = 0;
 static struct Person *persons;
 
+static char tempNif[10];
+static int tempConv;
+static float tempNota;
 
 
 extern char *processLine(char *) ;
@@ -27,11 +30,52 @@ extern float notaMedia(float *) ;
 
 %}
 
+%x NIF
+%x FIRST_SLASH
+%x CONV
+%x SECOND_SLASH
+%x NOTA
+%x ERROR
+
 %%
-[ \t\r]   ;
-\n          yylineno++;
-^[0-9]{8}[a-zA-Z];[0-3];(10|([0-9](,[0-9]+)?))$	{ printf("%s",processLine(yytext)); }
-^.*$ {printf("Error on line %d: %s\n",yylineno, yytext);}
+<INITIAL>{
+    [ ]*\n          {yylineno++; printf("%d\n",yylineno );}
+    ^[ ]*	{ printf("%s\n",yytext); BEGIN(NIF);}
+    ^[0-9]{8}[a-zA-Z]	{ printf("NIF: %s\n",yytext); BEGIN(FIRST_SLASH);}
+    .                   {BEGIN(ERROR);}
+}
+
+
+<NIF>{
+    [0-9]{8}[a-zA-Z]	{ printf("NIF: **%s**\n",yytext); BEGIN(FIRST_SLASH);}
+    .                   {BEGIN(ERROR);}
+}
+
+
+<FIRST_SLASH>{
+    [ ]*;[ ]*	{ printf("FIRST_SLASH: %s\n",yytext); BEGIN(CONV);}
+    .                   {BEGIN(ERROR);}
+}
+
+<CONV>{
+    [0-3]	{ printf("CONV: **%s**\n",yytext); BEGIN(SECOND_SLASH);}
+    .                   {BEGIN(ERROR);}
+}
+
+<SECOND_SLASH>{
+    [ ]*;[ ]*	{ printf("SECOND_SLASH: %s\n",yytext); BEGIN(NOTA);}
+    .                   {BEGIN(ERROR);}
+}
+
+<NOTA>{
+    (10|([0-9](,[0-9]+)?))	{ printf("NOTA: **%s**\n\n",yytext); BEGIN(INITIAL);}
+    .                   {BEGIN(ERROR);}
+}
+
+<ERROR>{
+    .*                   {printf("ERROR en linea %d: %s\n", yylineno, yytext); BEGIN(INITIAL);}
+}
+
 %%
 
 
