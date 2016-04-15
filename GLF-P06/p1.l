@@ -4,30 +4,62 @@
 #include <string.h>
 #include <ctype.h>
 
-struct Person {
-   char  nif[10];
-   float  nota[4];
-};
+
 
 static int nfc ;
 static int nft ;
 static char **fName ;
 static FILE *fd;
 
+
+/**
+ * Struct que modeliza a una persona.
+ **/
+struct Person {
+   char  nif[10];
+   float  nota[4];
+};
+
+
+/**
+ *
+ * Estructura de datos en la cual se almacenarán las notas de las personas.
+ *
+ **/
 static int pSize = 2;
 static int pElems = 0;
 static struct Person *persons;
 
+/*
+*
+* Declaracion de las variables donde se aloja temporalmente el valor de cada uno
+* de los campos de la linea, es decir, nif, convocatoria y nota.
+*
+* Notese que tal y como se ha planteado la maquina de estados no es necesario
+* almacenar la nota pero se ha preferido hacer así para mantener la consistencia
+*
+*/
 static char tempNif[10];
 static int tempConv;
 static float tempNota;
 
 
+/**
+ *
+ * Definicion de metodos.
+ **/
 extern void printNotas() ;
 extern void addNota(char*, int, float) ;
 extern float notaMedia(float *) ;
 extern void notMatch(char *, int) ;
 extern void processLine();
+
+
+/**
+ *
+ * Setters de las variables temporales.
+ *
+ **/
 extern void setTempDNI(char *);
 extern void setTempConv(char *);
 extern void setTempNotaI(char *);
@@ -94,33 +126,91 @@ extern void setTempNotaF(char *);
 
 %%
 
+
+
+/**
+ * notMatch()
+ *
+ * Funcion encargada de gestionar cuando no se ha llegado a la ocurrencia
+ * deseada por el automata de estados.
+ *
+ **/
 void notMatch(char text[], int line){
     printf("ERROR en linea %d: %s", yylineno, yytext);
     BEGIN(NOT_MATCH);
 }
 
+
+
+/**
+ * setTempDNI()
+ *
+ * Setter de la variable temporal DNI
+ *
+ **/
 void setTempDNI(char text[]){
     text[8] = toupper(text[8]);
     strncpy(tempNif, text, strlen(text));
 }
 
+
+
+/**
+ * setTempConv()
+ *
+ * Setter de la variable temporal Convocatoria
+ *
+ **/
 void setTempConv(char text[]) {
     tempConv = text[0]-'0';
 }
 
+
+
+/**
+ * setTempNotaI()
+ *
+ * Setter de la variable temporal nota cuando es un valor entero.
+ *
+ **/
 void setTempNotaI(char text[]) {
     tempNota = atof(text);
 }
 
+
+
+/**
+ * setTempNotaF()
+ *
+ * Setter de la variable temporal nota cuando es un valor fraccionario.
+ *
+ **/
 void setTempNotaF(char text[]) {
     text[1] = '.';
     setTempNotaI(text);
 }
 
+
+
+/**
+ * processLine()
+ *
+ * Procedimiento que se encarga de procesar la linea completa.
+ *
+ **/
 void processLine() {
     //printf("NIF: %s\nCONV: %d\nNOTA: %f\n",tempNif, tempConv, tempNota );
     addNota(tempNif, tempConv, tempNota);
 }
+
+
+
+/**
+ * addNota()
+ *
+ * Funcion encargada de introducir una nueva nota en la estructura de datos.
+ *
+ **/
 void addNota(char nif[], int conv, float nota){
     int  i = 0;
     while ((strcmp(persons[i].nif, nif) != 0) && (i < pElems)){
@@ -139,6 +229,14 @@ void addNota(char nif[], int conv, float nota){
     persons[i].nota[conv] = nota;
 }
 
+
+
+/**
+ * notaMedia()
+ *
+ * Funcion encargada de calcular la nota media a partir de las 3 convocatorias.
+ *
+ **/
 float notaMedia(float nota[]){
     int i;
     float media = 0;
@@ -148,6 +246,15 @@ float notaMedia(float nota[]){
     return media/4;
 }
 
+
+
+/**
+ * printNotas()
+ *
+ * Funcion encargada de mostrar por salida estandar la relacion entre personas
+ * identificadas por NIF y su nota media.
+ *
+ **/
 void printNotas(){
     int i;
     printf("\n");
@@ -193,6 +300,8 @@ FILE *fileReg(int na, char *av[]) {
     return fd = fopen(fName[nfc], "r") ;
 }
 
+
+
 /*
  * Si hay más ficheros, cambia de fichero y sigue
  * Si no, indica a yylex que hay que terminar
@@ -205,6 +314,14 @@ int yywrap() {
   return 1 ;
 }
 
+
+
+/**
+ * main()
+ *
+ * Funcion main de la aplicacion.
+ *
+ */
 int main (int na, char *av[]) {
 
     FILE *infd ;
@@ -212,10 +329,7 @@ int main (int na, char *av[]) {
         yyin=infd;
         printf("FICHERO: [%s]\n", fName[nfc]);
     }
-
     persons = malloc(pSize * sizeof(struct Person));
     yylex() ;
-
-
     printNotas();
 }
