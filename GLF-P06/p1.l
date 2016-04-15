@@ -22,10 +22,15 @@ static int tempConv;
 static float tempNota;
 
 
-extern char *processLine(char *) ;
 extern void printNotas() ;
 extern void addNota(char*, int, float) ;
 extern float notaMedia(float *) ;
+extern void notMatch(char *, int) ;
+extern void processLine();
+extern void setTempDNI(char *);
+extern void setTempConv(char *);
+extern void setTempNotaI(char *);
+extern void setTempNotaF(char *);
 
 
 %}
@@ -35,50 +40,85 @@ extern float notaMedia(float *) ;
 %x CONV
 %x SECOND_SLASH
 %x NOTA
-%x ERROR
+%x NOT_MATCH
 
 %%
 <INITIAL>{
-    [ ]*\n          {yylineno++; printf("%d\n",yylineno );}
-    ^[ ]*	{ printf("%s\n",yytext); BEGIN(NIF);}
-    ^[0-9]{8}[a-zA-Z]	{ printf("NIF: %s\n",yytext); BEGIN(FIRST_SLASH);}
-    .                   {BEGIN(ERROR);}
+    [ ]*\n              { processLine(); yylineno++; }
+
+    ^[ ]*	            { BEGIN(NIF); }
+
+    ^[0-9]{8}[a-zA-Z]   { setTempDNI(yytext); BEGIN(FIRST_SLASH); }
+
+    .                   { notMatch(yytext, yylineno); }
 }
 
 
 <NIF>{
-    [0-9]{8}[a-zA-Z]	{ printf("NIF: **%s**\n",yytext); BEGIN(FIRST_SLASH);}
-    .                   {BEGIN(ERROR);}
+    [0-9]{8}[a-zA-Z]    { setTempDNI(yytext); BEGIN(FIRST_SLASH); }
+
+    .                   { notMatch(yytext, yylineno); }
 }
 
 
 <FIRST_SLASH>{
-    [ ]*;[ ]*	{ printf("FIRST_SLASH: %s\n",yytext); BEGIN(CONV);}
-    .                   {BEGIN(ERROR);}
+    [ ]*;[ ]*	        { BEGIN(CONV); }
+
+    .                   { notMatch(yytext, yylineno); }
 }
 
 <CONV>{
-    [0-3]	{ printf("CONV: **%s**\n",yytext); BEGIN(SECOND_SLASH);}
-    .                   {BEGIN(ERROR);}
+    [0-3]               { setTempConv(yytext); BEGIN(SECOND_SLASH);}
+
+    .                   { notMatch(yytext, yylineno); }
 }
 
 <SECOND_SLASH>{
-    [ ]*;[ ]*	{ printf("SECOND_SLASH: %s\n",yytext); BEGIN(NOTA);}
-    .                   {BEGIN(ERROR);}
+    [ ]*;[ ]*	        { BEGIN(NOTA); }
+
+    .                   { notMatch(yytext, yylineno); }
 }
 
 <NOTA>{
-    (10|([0-9](,[0-9]+)?))	{ printf("NOTA: **%s**\n\n",yytext); BEGIN(INITIAL);}
-    .                   {BEGIN(ERROR);}
+    10|[0-9]            { setTempNotaI(yytext); BEGIN(INITIAL); }
+
+    [0-9](,[0-9]+)	    { setTempNotaF(yytext); BEGIN(INITIAL); }
+
+    .                   { notMatch(yytext, yylineno); }
 }
 
-<ERROR>{
-    .*                   {printf("ERROR en linea %d: %s\n", yylineno, yytext); BEGIN(INITIAL);}
+<NOT_MATCH>{
+    .*                  { printf("%s\n",yytext);BEGIN(INITIAL); }
 }
 
 %%
 
+void notMatch(char text[], int line){
+    printf("ERROR en linea %d: %s", yylineno, yytext);
+    BEGIN(NOT_MATCH);
+}
 
+void setTempDNI(char text[]){
+    strncpy(tempNif, text, strlen(text));
+}
+
+void setTempConv(char text[]) {
+    tempConv = text[0]-'0';
+}
+
+void setTempNotaI(char text[]) {
+    tempNota = atof(text);
+}
+
+void setTempNotaF(char text[]) {
+    text[1] = '.';
+    setTempNotaI(text);
+}
+
+void processLine() {
+    //printf("NIF: %s\nCONV: %d\nNOTA: %f\n",tempNif, tempConv, tempNota );
+    addNota(tempNif, tempConv, tempNota);
+}
 void addNota(char nif[], int conv, float nota){
     int  i = 0;
     while ((strcmp(persons[i].nif, nif) != 0) && (i < pElems)){
@@ -114,33 +154,7 @@ void printNotas(){
     }
 }
 
-char* processLine(char line[]) {
 
-    char nif[10];
-    int conv;
-    char nota[12];
-    float notaf;
-
-    strncpy(nif, line, 9);
-
-    conv = line[10] - '0';
-    strncpy(nota, line+12, strlen(line)-12);
-
-    int i = 0;
-
-    for (i = 0; i< strlen(nota); i++){
-        if (nota[i] == ','){
-            nota[i] = '.';
-            break;
-        }
-    }
-
-
-    notaf = atof(nota);
-
-    addNota(nif, conv, notaf);
-    return "";
-}
 
 /*
  * Registra la lista de ficheros proporcionada en los argumentos
