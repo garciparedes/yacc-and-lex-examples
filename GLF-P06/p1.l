@@ -80,11 +80,18 @@ char* processLine(char line[]) {
     strncpy(nif, line, 9);
 
     conv = line[10] - '0';
-
     strncpy(nota, line+12, strlen(line)-12);
-    if(strlen(nota)>2){
-        nota[1] = '.';
+
+    int i = 0;
+
+    for (i = 0; i< strlen(nota); i++){
+        if (nota[i] == ','){
+            nota[i] = '.';
+            break;
+        }
     }
+
+
     notaf = atof(nota);
 
     addNota(nif, conv, notaf);
