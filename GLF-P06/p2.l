@@ -9,8 +9,11 @@ static int nft ;
 static char **fName ;
 static FILE *fd;
 
-static int nested = 0;
 
+extern void setCachedVisibility(char);
+
+static int nested = 0;
+static char cachedVisibility;
 
 %}
 
@@ -18,45 +21,62 @@ static int nested = 0;
 %x CLASS_NAME
 %x IN_COMMENT
 %x METHOD
-%x METHOD_VISIBILITY
+%x VISIBILITY
 
 
 %%
 
 <INITIAL>{
-   ([\t\n]|.)                     ;
-   (class[ ]+)              {BEGIN(CLASS_NAME);}
+   ([\t\n]|.)               { ; }
+   (class[ ]+)              { BEGIN(CLASS_NAME);}
 }
-<CLASS_NAME>{
-   ([\t\n]|.)                     {BEGIN(INITIAL);}
-   [a-zA-Z]+              {printf("\tClass:\t%s\n", yytext);
-                                    BEGIN(CLASS);}
-}
-<CLASS>{
-    ([a-zA-Z<>]+[ ]+[a-zA-Z0-9_]+)/([ ]*(=.*)?;)       {printf("\t\tAttr:\t%s\n", yytext);}
 
-    ([a-zA-Z<>]+[ ]+)?[a-zA-Z]+[ ]*\([^\)]*\)  {printf("\t\tFunc:\t%s\n", yytext);
-                                    BEGIN(METHOD);}
-    (\/\/)                          ;
-    [\t\n]|[^\}]                     ;
-    "/*"                BEGIN(IN_COMMENT);
-    "}"                 BEGIN(INITIAL);
+
+<CLASS_NAME>{
+   ([\t\n]|.)               { BEGIN(INITIAL);}
+   [a-zA-Z]+                { printf("\tClass:\t%s\n", yytext); BEGIN(CLASS);}
 }
+
+
+<CLASS>{
+
+    (public)?               { cachedVisibility = '+'; BEGIN(VISIBILITY); }
+    (private)?              { cachedVisibility = '-'; BEGIN(VISIBILITY); }
+    (protected)?            { cachedVisibility = '*'; BEGIN(VISIBILITY); }
+    (\/\/)                  { ; }
+    [\t\n]|[^\}]            { ; }
+    "/*"                    {BEGIN(IN_COMMENT);}
+    "}"                     {BEGIN(INITIAL);}
+}
+
 
 <IN_COMMENT>{
-    "*/"      BEGIN(CLASS);
-    [^*\n]+   // eat comment in chunks
-    "*"       // eat the lone star
-    \n        yylineno++;
+    "*/"                    BEGIN(CLASS);
+    [^*\n]+                 // eat comment in chunks
+    "*"                     // eat the lone star
+    \n                      yylineno++;
 }
 
+
 <METHOD>{
-    "}"       {nested--; if (nested == 0 )BEGIN(CLASS);}
-    [^\{\}\n]+   // eat comment in chunks
-    "{"       {nested++;}
-    \n        yylineno++;
+    "}"                     {nested--; if (nested == 0 )BEGIN(CLASS);}
+    [^\{\}\n]+               // eat comment in chunks
+    "{"                     {nested++;}
+    \n                      yylineno++;
+}
+
+
+<VISIBILITY>{
+
+    ([a-zA-Z<>]+[ ]+[a-zA-Z0-9_]+)/([ ]*(=.*)?;)    {printf("\t\tAttr:\t%c %s\n", cachedVisibility,yytext); BEGIN(CLASS);}
+
+    ([a-zA-Z<>]+[ ]+)?[a-zA-Z]+[ ]*\([^\)]*\)       {printf("\t\tFunc:\t%c %s\n",cachedVisibility, yytext); BEGIN(METHOD);}
+    "/*"                                            { BEGIN(IN_COMMENT); }
+    [\t\n]|[^\}]                                    { ; }
+
 }
 %%
+
 
 
 /*
@@ -92,6 +112,8 @@ FILE *fileReg(int na, char *av[]) {
     return fd = fopen(fName[nfc], "r") ;
 }
 
+
+
 /*
  * Si hay más ficheros, cambia de fichero y sigue
  * Si no, indica a yylex que hay que terminar
@@ -106,6 +128,13 @@ int yywrap() {
   return 1 ;
 }
 
+
+/**
+ * main()
+ *
+ * Funcion que inicia el funcionamiento de la aplicacion.
+ *
+ **/
 int main (int na, char *av[]) {
     char extension[6];
     int i;
