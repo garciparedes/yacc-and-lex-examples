@@ -1,3 +1,22 @@
+
+/**
+ * AUTOR:
+ *    Sergio García Prado
+ * GIT HISTORY:
+ *    https://github.com/garciparedes/Lex-Examples/commits/master/GLF-P06/p1.l
+ *
+ * DESCRIPCIÓN:
+ *    Programa LeX que tome como argumentos de línea de órdenes una lista de
+ * nombres de ficheros, cada uno de los cuales se supone que contiene líneas con
+ * tres campos: NIF, CONVOCATORIA, NOTA, separados por  ;(punto y coma). El
+ * programa debe mostrar para cada DNI la nota media de todos los exámenes y
+ * señalar los registros que contengan errores o datos incorrectos. CONVOCATORIA
+ * puede valer 0,1,2,3. NOTA es un número entre 0 y 10 con decimales separados
+ * por coma, NIF tiene el formato estándar en España (no se requiere validación
+ * de control de la letra). Si no se especifica ningún fichero en la línea de
+ * órdenes, se usará la entrada estándar.
+ */
+
 %{
 #include <stdio.h>
 #include <stdlib.h>
