@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 struct Person {
    char  nif[10];
@@ -99,6 +100,7 @@ void notMatch(char text[], int line){
 }
 
 void setTempDNI(char text[]){
+    text[8] = toupper(text[8]);
     strncpy(tempNif, text, strlen(text));
 }
 
@@ -148,10 +150,12 @@ float notaMedia(float nota[]){
 
 void printNotas(){
     int i;
+    printf("\n");
     for (i = 0; i < pElems ; i++){
-        printf("NIF: %s\t Nota Media: %f\n",
+        printf("\tNIF: %s\tNota Media: %f\n",
             persons[i].nif, notaMedia(persons[i].nota) );
     }
+    printf("\n");
 }
 
 
