@@ -1,3 +1,20 @@
+/**
+ * AUTOR:
+ *    Sergio García Prado
+ * GIT HISTORY:
+ *    https://github.com/garciparedes/Lex-Examples/commits/master/GLF-P06/p2.l
+ *
+ * DESCRIPCIÓN:
+ *    Programa LeX que tome como argumentos de línea de órdenes una lista de
+ * nombres de ficheros (extensión .java, si no los ignorará). Si no se
+ * especifica ningún fichero en la línea de órdenes, se usará la entrada
+ * estándar. El programa debe mostrar, para cada fichero, la relación de clases
+ * que se definen en el mismo, indicando el nombre de cada una. Para cada clase,
+ * la relación de métodos y propiedades, por separado, indicando el nombre de
+ * cada una. Deberán procesarse sólo las declaraciones que aparezcan fuera de
+ * comentarios de bloque.
+ */
+
 %{
 #include <stdio.h>
 #include <stdlib.h>
