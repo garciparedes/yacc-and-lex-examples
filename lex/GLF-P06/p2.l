@@ -1,8 +1,8 @@
 /**
- * AUTOR:
+ * AUTHOR:
  *    Sergio García Prado
  * GIT HISTORY:
- *    https://github.com/garciparedes/Lex-Examples/commits/master/GLF-P06/p2.l
+ *    https://github.com/garciparedes/yacc-and-lex-examples/commits/master/lex/GLF-P06/p2.l
  *
  * DESCRIPCIÓN:
  *    Programa LeX que tome como argumentos de línea de órdenes una lista de
